@@ -23,6 +23,8 @@ NO_TEXT_MESSAGE = (
 # Characters that resume templates commonly use to start a bullet point.
 BULLET_CHARS = "•●▪■◦‣○►▸➢➤✓✔*-–—"
 BULLET_PATTERN = re.compile(rf"^\s*[{re.escape(BULLET_CHARS)}]\s*")
+CID_PATTERN = re.compile(r"\(cid:\d+\)")
+CID_AT_START = re.compile(r"^\(cid:\d+\)\s*")
 
 # Bullets shorter than this are usually fragments ("- Python") rather than
 # achievement statements, so they aren't worth rewriting.
@@ -73,6 +75,11 @@ def clean_text(raw: str) -> str:
         if ch == "\n" or unicodedata.category(ch) not in {"Cc", "Cf", "Co", "Cs"}
     )
     lines = [re.sub(r"[ \t]+", " ", line).strip() for line in text.split("\n")]
+    # pdfminer writes "(cid:127)" for glyphs it can't map to unicode. Resume
+    # templates hit this most often with custom bullet symbols, so a cid at
+    # the start of a line becomes a bullet; anywhere else it is just noise.
+    lines = [CID_AT_START.sub("• ", line) for line in lines]
+    lines = [CID_PATTERN.sub("", line).strip() for line in lines]
     # Collapse runs of blank lines into one.
     return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
 
