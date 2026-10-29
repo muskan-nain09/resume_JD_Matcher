@@ -1,0 +1,27 @@
+Machine Learning Engineer — Northwind Analytics
+
+About the role
+Northwind Analytics is looking for a Machine Learning Engineer to design, build, and deploy production ML systems that power our recommendation and forecasting products. You will work closely with data scientists and product managers to take models from prototype to production.
+
+Responsibilities
+- Build and maintain end-to-end machine learning pipelines, from feature engineering to model deployment
+- Train and evaluate models using PyTorch and scikit-learn
+- Deploy models as REST APIs using FastAPI and Docker on AWS
+- Orchestrate data workflows with Airflow and manage infrastructure with Kubernetes
+- Monitor model performance in production and set up automated retraining
+- Implement CI/CD for ML workflows and contribute to MLOps best practices
+- Write clean, tested Python code and participate in code reviews
+
+Requirements
+- 3+ years of experience as an ML engineer or in a similar role
+- Strong proficiency in Python and SQL
+- Hands-on experience with PyTorch or TensorFlow
+- Experience with cloud platforms (AWS preferred), Docker, and Kubernetes
+- Familiarity with NLP, transformers, and large language models (LLMs)
+- Experience with experiment tracking tools such as MLflow
+- Solid understanding of statistics, A/B testing, and model evaluation
+
+Nice to have
+- Experience with Spark or other distributed data processing tools
+- Knowledge of vector databases and retrieval-augmented generation (RAG)
+- Experience with PostgreSQL and Redis
