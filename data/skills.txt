@@ -10,7 +10,7 @@
 Python
 Java
 JavaScript | JS
-TypeScript | TS
+TypeScript
 C++ | cpp
 C#
 Go | Golang
@@ -35,7 +35,7 @@ Machine Learning | ML
 Deep Learning
 Artificial Intelligence | AI
 Natural Language Processing | NLP
-Computer Vision | CV
+Computer Vision
 Reinforcement Learning
 Generative AI | GenAI
 Large Language Models | LLM | LLMs
@@ -44,7 +44,7 @@ Prompt Engineering
 Transformers
 BERT
 GPT
-Fine-tuning | finetuning
+Fine-tuning
 Neural Networks
 CNN | CNNs | convolutional neural networks
 RNN | RNNs | LSTM
@@ -113,7 +113,6 @@ Amazon Redshift | Redshift
 Tableau
 Power BI | PowerBI
 Looker
-Excel
 Big Data
 
 # --- Web / backend / frontend ---
@@ -124,12 +123,12 @@ Angular
 Vue.js | Vue | VueJS
 Next.js | NextJS
 Svelte
-Node.js | NodeJS | Node
-Express.js | Express
+Node.js | NodeJS
+Express.js | ExpressJS
 Django
 Flask
 FastAPI
-Spring Boot | Spring
+Spring Boot | Spring Framework
 Ruby on Rails | Rails
 .NET | dotnet | ASP.NET
 REST APIs | REST API | REST | RESTful
@@ -152,7 +151,7 @@ JWT
 Amazon Web Services | AWS
 Microsoft Azure | Azure
 Google Cloud Platform | GCP | Google Cloud
-AWS Lambda | Lambda
+AWS Lambda
 Amazon S3 | S3
 Amazon EC2 | EC2
 Amazon SageMaker | SageMaker
@@ -185,7 +184,6 @@ Grafana
 Datadog
 ELK Stack | Elasticsearch | Kibana | Logstash
 Infrastructure as Code | IaC
-Monitoring
 Observability
 DevOps
 Site Reliability Engineering | SRE
@@ -222,6 +220,5 @@ Object-Oriented Programming | OOP
 Data Structures
 Algorithms
 Design Patterns
-Security
 API Design
 Performance Optimization
