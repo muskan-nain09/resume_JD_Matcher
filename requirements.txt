@@ -1,0 +1,19 @@
+# CPU-only PyTorch wheels. Without this, pip on Linux pulls the multi-GB CUDA
+# build, which is useless on Streamlit Cloud, Railway, or a laptop without a GPU.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+streamlit>=1.45,<2
+pdfplumber>=0.11,<1
+sentence-transformers>=3.0
+torch>=2.2
+numpy>=1.26
+spacy>=3.7,<4
+# The spaCy model is installed as a pinned wheel so deployments don't need a
+# separate `python -m spacy download` step.
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+requests>=2.31,<3
+python-dotenv>=1.0,<2
+pinecone>=5.0
+
+# Testing
+pytest>=8.0
