@@ -16,7 +16,7 @@ from dataclasses import dataclass
 import streamlit as st
 from dotenv import load_dotenv
 
-from matcher import embeddings, keywords, llm, scoring
+from matcher import embeddings, job_store, keywords, llm, scoring
 from matcher.pdf_parser import ParsedResume, PDFParseError, parse_resume
 
 load_dotenv()
@@ -40,6 +40,11 @@ def get_nlp():
 @st.cache_resource
 def get_skills():
     return keywords.load_skills()
+
+
+@st.cache_resource(show_spinner="Connecting to Pinecone...")
+def get_job_store():
+    return job_store.JobStore.from_env()
 
 
 # ---------- analysis ----------
@@ -134,12 +139,61 @@ def render_rewrites() -> None:
         st.divider()
 
 
+def render_saved_jobs(resume_file) -> None:
+    try:
+        store = get_job_store()
+    except Exception as exc:  # bad key, network error, etc.
+        st.error(f"Couldn't connect to Pinecone: {exc}")
+        return
+
+    st.subheader("Save a job description")
+    with st.form("save_job", clear_on_submit=True):
+        title = st.text_input("Job title")
+        company = st.text_input("Company")
+        saved_jd = st.text_area("Job description", height=150)
+        if st.form_submit_button("Save job"):
+            if not (title.strip() and saved_jd.strip()):
+                st.warning("A job title and description are required.")
+            else:
+                with st.spinner("Saving..."):
+                    store.save_job(title.strip(), company.strip(), saved_jd,
+                                   embeddings.embed_text(get_model(), saved_jd))
+                st.success(f"Saved “{title.strip()}”.")
+
+    st.divider()
+    st.subheader("Find best matching jobs")
+    if resume_file is None:
+        st.info("Upload your resume in the Match tab first.")
+        return
+    if st.button("Find matches"):
+        try:
+            resume = parse_resume(resume_file)
+        except PDFParseError as exc:
+            st.error(str(exc))
+            return
+        with st.spinner("Searching saved jobs..."):
+            matches = store.find_matches(embeddings.embed_text(get_model(), resume.text))
+        if not matches:
+            st.info("No saved jobs yet. Save one above.")
+        for m in matches:
+            label = f"{m.score:.0%} · {m.title}" + (f" at {m.company}" if m.company else "")
+            with st.expander(label):
+                st.caption(m.jd_preview)
+
+
 # ---------- page ----------
 
 st.title("📄 Resume–JD Matcher")
 st.caption("Compare your resume with a job description and see what's missing.")
 
-match_tab, = st.tabs(["Match"])
+# The Saved Jobs tab only exists when Pinecone is configured; the core
+# matching feature never depends on it.
+pinecone_enabled = job_store.is_enabled()
+if not pinecone_enabled:
+    st.caption("💡 Saved Jobs is turned off. Set `PINECONE_API_KEY` in your `.env` "
+               "to save job descriptions and find your best matches.")
+tabs = st.tabs(["Match", "Saved Jobs"] if pinecone_enabled else ["Match"])
+match_tab = tabs[0]
 
 with match_tab:
     left, right = st.columns(2)
@@ -170,3 +224,7 @@ with match_tab:
         if "rewrites" not in st.session_state:
             load_rewrites(analysis)
         render_rewrites()
+
+if pinecone_enabled:
+    with tabs[1]:
+        render_saved_jobs(resume_file)
