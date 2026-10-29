@@ -14,10 +14,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import streamlit as st
+from dotenv import load_dotenv
 
-from matcher import embeddings, keywords, scoring
+from matcher import embeddings, keywords, llm, scoring
 from matcher.pdf_parser import ParsedResume, PDFParseError, parse_resume
 
+load_dotenv()
 st.set_page_config(page_title="Resume–JD Matcher", page_icon="📄", layout="wide")
 
 BAND_COLORS = {"green": "green", "amber": "orange", "red": "red"}
@@ -93,6 +95,45 @@ def render_keywords(kw: keywords.KeywordResult) -> None:
         render_tags(kw.missing_keywords, "red")
 
 
+def load_rewrites(analysis: Analysis) -> None:
+    """Generate suggestions once per analysis and store them in session state.
+
+    Any LLM failure is stored as a message instead of raised, so the score and
+    keywords above still display when Ollama isn't running.
+    """
+    bullets = embeddings.weakest_bullets(
+        get_model(), analysis.resume.bullets, analysis.jd_text, n=llm.MAX_BULLETS
+    )
+    if not bullets:
+        st.session_state["rewrites"] = (
+            "No bullet points were found in the resume (lines starting with •, -, or *)."
+        )
+        return
+    try:
+        provider = llm.get_provider()
+        with st.spinner(f"Writing suggestions with {provider.name}..."):
+            st.session_state["rewrites"] = llm.suggest_rewrites(
+                provider, analysis.jd_text, analysis.keywords.missing_keywords, bullets
+            )
+    except llm.LLMError as exc:
+        st.session_state["rewrites"] = f"Rewrite suggestions are unavailable right now. {exc}"
+
+
+def render_rewrites() -> None:
+    st.subheader("✍️ Rewrite suggestions")
+    rewrites = st.session_state.get("rewrites")
+    if isinstance(rewrites, str):
+        st.info(rewrites)
+        return
+    st.caption("Your weakest bullets compared with the JD. "
+               "Fill in any [placeholders] with your real numbers; never guess.")
+    for r in rewrites:
+        col1, col2 = st.columns(2)
+        col1.markdown(f"**Original**\n\n{r.original}")
+        col2.markdown(f"**Suggested**\n\n{r.suggestion or '_No suggestion returned._'}")
+        st.divider()
+
+
 # ---------- page ----------
 
 st.title("📄 Resume–JD Matcher")
@@ -108,10 +149,12 @@ with match_tab:
 
     ready = resume_file is not None and jd_text.strip()
     if st.button("Analyze", type="primary", disabled=not ready):
+        # A new analysis invalidates old suggestions.
+        st.session_state.pop("analysis", None)
+        st.session_state.pop("rewrites", None)
         try:
             resume = parse_resume(resume_file)
         except PDFParseError as exc:
-            st.session_state.pop("analysis", None)
             st.error(str(exc))
         else:
             with st.spinner("Analyzing resume..."):
@@ -123,3 +166,7 @@ with match_tab:
         render_score(analysis.score)
         st.divider()
         render_keywords(analysis.keywords)
+        st.divider()
+        if "rewrites" not in st.session_state:
+            load_rewrites(analysis)
+        render_rewrites()
