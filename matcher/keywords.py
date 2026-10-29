@@ -64,6 +64,9 @@ SKIP_ENTITY_TYPES = {"ORG", "GPE", "LOC", "PERSON", "DATE", "TIME", "MONEY",
 
 MAX_PHRASE_WORDS = 3
 
+# JDs are full of bulleted lists; markers confuse the parser at line start.
+BULLET_PREFIX = re.compile(r"^\s*[•●▪■◦‣○►▸➢➤✓✔*\-–—]\s*")
+
 
 @dataclass
 class Skill:
@@ -125,29 +128,55 @@ def _lemma_text(doc) -> str:
     return " ".join(t.lemma_.lower() for t in doc if not t.is_punct and not t.is_space)
 
 
-def extract_noun_phrases(text: str, nlp: Language) -> dict[str, str]:
+def extract_noun_phrases(
+    text: str, nlp: Language, skills: list[Skill] | None = None
+) -> dict[str, str]:
     """Return {lemmatized phrase: display phrase} for meaningful noun chunks.
 
-    Each chunk is trimmed to its content words: stop words, generic words,
-    numbers and punctuation are dropped. Chunks that are named entities like
-    the company name or a date are skipped entirely.
+    Rules, each chosen to cut a specific kind of noise:
+    - Parse line by line, so a chunk never runs across two bullet points.
+    - Ignore the first word of a bullet line. JD bullets start with a verb
+      ("Deploy models...") that the small spaCy model often tags as a noun.
+    - Keep only the part of a chunk after its last "and"/"or"/comma, so
+      "recommendation and forecasting products" doesn't merge two ideas.
+    - Drop stop words, generic words, and named entities (company, dates).
+    - Keep only 2-3 word phrases. Single tech words are the skills list's job;
+      single words from noun chunks were mostly noise ("data", "models").
+    - Skip phrases made only of proper nouns, which are usually company or
+      product names that aren't in the skills list.
+    - Skip chunks that contain a known skill, so it isn't counted twice.
     """
+    lines = [line for line in text.splitlines() if line.strip()]
+    is_bullet = [bool(BULLET_PREFIX.match(line)) for line in lines]
+    docs = nlp.pipe(BULLET_PREFIX.sub("", line) for line in lines)
     phrases: dict[str, str] = {}
-    for chunk in nlp(text).noun_chunks:
-        if chunk.root.ent_type_ in SKIP_ENTITY_TYPES:
-            continue
-        tokens = [
-            t for t in chunk
-            if t.is_alpha and not t.is_stop and t.lemma_.lower() not in GENERIC_WORDS
-            and t.text.lower() not in GENERIC_WORDS and t.pos_ in {"NOUN", "PROPN", "ADJ"}
-        ]
-        # A phrase made only of adjectives ("scalable") isn't a keyword.
-        if not tokens or len(tokens) > MAX_PHRASE_WORDS or all(t.pos_ == "ADJ" for t in tokens):
-            continue
-        if len(tokens) == 1 and len(tokens[0].text) < 3:
-            continue
-        lemma = " ".join(t.lemma_.lower() for t in tokens)
-        phrases.setdefault(lemma, " ".join(t.text.lower() for t in tokens))
+    for doc, bullet in zip(docs, is_bullet):
+        for chunk in doc.noun_chunks:
+            span = chunk
+            breaks = [t.i for t in chunk if t.pos_ == "CCONJ" or t.text in {",", ";"}]
+            if breaks:
+                span = doc[breaks[-1] + 1:chunk.end]
+            if skills and find_skills(span.text, skills):
+                continue
+            # VERB is allowed because participles inside a noun chunk act as
+            # modifiers: "event-driven architecture", "automated retraining".
+            tokens = [
+                t for t in span
+                if t.is_alpha and not t.is_stop
+                and not (bullet and t.i == 0)
+                and t.ent_type_ not in SKIP_ENTITY_TYPES
+                and t.lemma_.lower() not in GENERIC_WORDS
+                and t.text.lower() not in GENERIC_WORDS
+                and t.pos_ in {"NOUN", "PROPN", "ADJ", "VERB"}
+            ]
+            if not 2 <= len(tokens) <= MAX_PHRASE_WORDS:
+                continue
+            if tokens[-1].pos_ not in {"NOUN", "PROPN"}:
+                continue
+            if all(t.pos_ == "PROPN" for t in tokens):
+                continue
+            lemma = " ".join(t.lemma_.lower() for t in tokens)
+            phrases.setdefault(lemma, " ".join(t.text.lower() for t in tokens))
     return phrases
 
 
@@ -161,12 +190,8 @@ def compare_keywords(
         if skill.found_in(jd_text):
             (matched if skill.found_in(resume_text) else missing).append(skill.name)
 
-    # Noun phrases that contain a skill would double-count it ("python code"
-    # vs "Python"), so they are dropped; the skills list already covers them.
     resume_lemmas = _lemma_text(nlp(resume_text))
-    for lemma, display in extract_noun_phrases(jd_text, nlp).items():
-        if find_skills(display, skills):
-            continue
+    for lemma, display in extract_noun_phrases(jd_text, nlp, skills).items():
         found = re.search(rf"(?<!\w){re.escape(lemma)}(?!\w)", resume_lemmas)
         (matched if found else missing).append(display)
 
