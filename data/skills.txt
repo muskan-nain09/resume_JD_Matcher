@@ -1,0 +1,227 @@
+# Curated tech skills, one per line.
+# Format: Canonical Name | alias | alias ...
+# The first name is what the UI shows. Aliases catch common spelling variants.
+# Matching is case-insensitive and whole-word; spaces and hyphens are
+# interchangeable ("scikit-learn" == "scikit learn"). Very short names
+# (2 characters or fewer, like "Go" or "R") are matched case-sensitively so
+# ordinary words like "go" don't count as skills.
+
+# --- Programming languages ---
+Python
+Java
+JavaScript | JS
+TypeScript | TS
+C++ | cpp
+C#
+Go | Golang
+Rust
+Kotlin
+Swift
+Scala
+R
+Ruby
+PHP
+MATLAB
+Bash | shell scripting
+PowerShell
+Perl
+Dart
+Julia
+SQL
+NoSQL
+
+# --- AI / ML ---
+Machine Learning | ML
+Deep Learning
+Artificial Intelligence | AI
+Natural Language Processing | NLP
+Computer Vision | CV
+Reinforcement Learning
+Generative AI | GenAI
+Large Language Models | LLM | LLMs
+Retrieval-Augmented Generation | RAG
+Prompt Engineering
+Transformers
+BERT
+GPT
+Fine-tuning | finetuning
+Neural Networks
+CNN | CNNs | convolutional neural networks
+RNN | RNNs | LSTM
+Feature Engineering
+Model Deployment
+MLOps
+Recommender Systems | recommendation systems
+Time Series | time-series forecasting
+Forecasting
+Anomaly Detection
+Classification
+Regression
+Clustering
+PyTorch | torch
+TensorFlow
+Keras
+scikit-learn | sklearn | scikit learn
+XGBoost
+LightGBM
+Hugging Face | HuggingFace
+spaCy
+NLTK
+OpenCV
+LangChain
+LlamaIndex
+MLflow
+Kubeflow
+Weights & Biases | wandb | W&B
+ONNX
+Vector Databases | vector database | vector db
+Pinecone
+FAISS
+Embeddings
+Ollama
+OpenAI API
+
+# --- Data ---
+Data Analysis
+Data Science
+Data Engineering
+Data Visualization
+Data Modeling
+Data Pipelines | data pipeline
+Data Warehousing | data warehouse
+ETL | ELT
+Statistics | statistical analysis
+A/B Testing | AB testing | split testing
+Experiment Design | experimentation
+pandas
+NumPy
+SciPy
+Polars
+Matplotlib
+Seaborn
+Plotly
+Jupyter | Jupyter Notebook
+Apache Spark | Spark | PySpark
+Hadoop
+Apache Kafka | Kafka
+Apache Airflow | Airflow
+dbt
+Snowflake
+Databricks
+BigQuery
+Amazon Redshift | Redshift
+Tableau
+Power BI | PowerBI
+Looker
+Excel
+Big Data
+
+# --- Web / backend / frontend ---
+HTML | HTML5
+CSS | CSS3
+React | React.js | ReactJS
+Angular
+Vue.js | Vue | VueJS
+Next.js | NextJS
+Svelte
+Node.js | NodeJS | Node
+Express.js | Express
+Django
+Flask
+FastAPI
+Spring Boot | Spring
+Ruby on Rails | Rails
+.NET | dotnet | ASP.NET
+REST APIs | REST API | REST | RESTful
+GraphQL
+gRPC
+WebSockets
+Microservices
+Tailwind CSS | Tailwind
+Bootstrap
+Redux
+jQuery
+Webpack
+Vite
+Streamlit
+Gradio
+OAuth
+JWT
+
+# --- Cloud ---
+Amazon Web Services | AWS
+Microsoft Azure | Azure
+Google Cloud Platform | GCP | Google Cloud
+AWS Lambda | Lambda
+Amazon S3 | S3
+Amazon EC2 | EC2
+Amazon SageMaker | SageMaker
+Azure ML | Azure Machine Learning
+Vertex AI
+Serverless
+Cloud Computing
+Heroku
+Vercel
+Firebase
+
+# --- DevOps / infrastructure ---
+Docker
+Kubernetes | K8s
+Terraform
+Ansible
+Helm
+Jenkins
+GitHub Actions
+GitLab CI
+CI/CD | continuous integration | continuous deployment
+Git
+GitHub
+GitLab
+Linux
+Unix
+Nginx
+Prometheus
+Grafana
+Datadog
+ELK Stack | Elasticsearch | Kibana | Logstash
+Infrastructure as Code | IaC
+Monitoring
+Observability
+DevOps
+Site Reliability Engineering | SRE
+
+# --- Databases ---
+PostgreSQL | Postgres
+MySQL
+SQLite
+Microsoft SQL Server | SQL Server | MSSQL
+Oracle Database | Oracle
+MongoDB
+Redis
+Cassandra
+DynamoDB
+Neo4j
+Supabase
+Database Design
+
+# --- Testing / practices ---
+Unit Testing
+pytest
+Jest
+Selenium
+Cypress
+Test-Driven Development | TDD
+Agile
+Scrum
+Kanban
+Jira
+Code Review | code reviews
+System Design
+Distributed Systems
+Object-Oriented Programming | OOP
+Data Structures
+Algorithms
+Design Patterns
+Security
+API Design
+Performance Optimization
